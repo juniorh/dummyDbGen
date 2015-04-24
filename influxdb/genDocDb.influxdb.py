@@ -5,6 +5,7 @@ import datetime
 import logging
 import argparse
 import random
+import sys
 from influxdb import InfluxDBClient
 
 def get_args_parser():
