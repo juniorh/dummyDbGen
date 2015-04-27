@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # How to use
-# >python genDocDb.memcache.py -h localhost -p 22222
+# >python genDocDb.rethink.py -h localhost -p 28015 -a authkey -d database -t table -n 1000 -r 1
 
+from elasticsearch import Elasticsearch 
 import argparse
-import memcache
-import datetime
 import random
-import uuid
+import datetime
 import time
 import sys
 
@@ -20,28 +19,46 @@ def get_args_parser():
     help="Connect to host.")
   parser.add_argument(
     "-p", "--port",
-    default=11211,
+    default=9200,
     nargs='?',
     type=int,
     help="Port number to use for connection.")
+  parser.add_argument(
+    "-u", "--user",
+    default=None,
+    nargs='?',
+    type=str,
+    help="User for authentication if needed.")
+  parser.add_argument(
+    "-P", "--password",
+    default=None,
+    nargs='?',
+    type=str,
+    help="Password for authentication if needed.")
+  parser.add_argument(
+    "-i", "--index",
+    default=None,
+    nargs='?',
+    type=str,
+    help="Select index (similar to database name).")
+  parser.add_argument(
+    "-t", "--type",
+    default=None,
+    nargs='?',
+    type=str,
+    help="Select type (similar to table name)")
   parser.add_argument(
     "-r", "--report",
     default=0,
     nargs='?',
     type=int,
-    help="Print report every r second") 
+    help="Print report every r second")
   parser.add_argument(
     "-n", "--number",
     default=1,
     nargs='?',
     type=int,
     help="How much point dummies will be generated")
-  parser.add_argument(
-    "-o", "--output",
-    default=None,
-    nargs='?',
-    type=str,
-    help="Store key to file")
   parser.add_argument(
     "--help",
     default=False,
@@ -88,55 +105,46 @@ def genData():
   return DataOut
 
 if __name__ == '__main__':
-  mc = None
-  f = None
-  w_ok = 0
-  w_fail = 0
-  t_start = None
   limit_t_first = time.mktime(datetime.datetime(2015,1,1).timetuple())
   limit_t_last = time.mktime(datetime.datetime(2015,12,31).timetuple())
   parser = get_args_parser()
   args = parser.parse_args()
-  print args
-  if args.help:
+  conn = None
+  es = None
+  if args.help or not args.index or not args.type or not args.host:
     parser.print_help()
     parser.exit()
-  try:
-    mc = memcache.Client([str(args.host)+":"+str(args.port)])
-  except Exception, err:
-    print err
+  #check connection to elasticsaerch searver
+  auth = None
+  if args.user and args.password:
+    auth = (args.user, args.password)
+  es = Elasticsearch([
+    {
+      "host": args.host,
+      "port": args.port
+    }],
+    http_auth=auth
+  )
+  if not es.ping():
+    print es.ping()
+    print "Can't Connect to Cluster"
     sys.exit()
-  # Open File for storing keys
-  if args.output:
-    try:
-      f = open(args.output,"a")
-    except Exception, err:
-      print err
-      sys.exit()
-  # Generate dummy data
-  t = time.time()
-  t_start = t
-  for i in range(0,args.number):
-    key = "data-"+str(uuid.uuid1())
-    value = genData()
-    try:
-      res = mc.set(key,value)
-      if res:
-        w_ok = w_ok+1
-      else:
-        w_fail = w_fail+1
-      #print res
-      #print data
-      #print val
-    except Exception, err:
-      print err
-      print "last number input i-"+str(i+1)+" data: "+str(value)
-    if f:
-      f.write(key+"\n")
-      f.flush()
-    if args.report:
-      if time.time() - t > args.report:
-        t = time.time()
-        print "rtDummy "+str(i+1)+" : "+str(res)+" w_ok:"+str(w_ok)+" w_fail:"+str(w_fail)
-  print "Finish generate memcached dummy : "+str(args.number)+" w_ok:"+str(w_ok)+" w_fail:"+str(w_fail)+" time:"+str(time.time()-t_start)
+  else:
+    t = time.time()
+    for i in range(0,args.number):
+      data = genData()
+      res = None
+      try:
+        res = es.index(index=args.index, doc_type=args.type, body=data)
+        #print data
+        #print res
+      except Exception, err:
+        print err
+        print "last number input i-"+str(i)+" data: "+str(data)
+      if args.report:
+        if time.time() - t > args.report:
+          t = time.time()
+          print "rtDummy "+str(i)+" : "+str(res)
+  print "Finish generate rethinkdb dummy : "+str(args.number)
   sys.exit()
+
