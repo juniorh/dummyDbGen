@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # How to use
-# >python genDocDb.rethink.py -h localhost -p 28015 -a authkey -d database -t table -n 1000 -r 1
+# >python genDocDb.elastic.py -h localhost -p 9200 -i test -t data1 -n 1000 -r 1
 
 from elasticsearch import Elasticsearch 
 import argparse
