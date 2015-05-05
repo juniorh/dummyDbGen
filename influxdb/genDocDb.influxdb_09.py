@@ -42,6 +42,11 @@ def get_args_parser():
     type=str,
     help="Select variable")
   parser.add_argument(
+    "-xd", "--no-create-database",
+    default=False,
+    action='store_true',
+    help="Don't create database")
+  parser.add_argument(
     "-m", "--measurement",
     default=None,
     nargs='?',
@@ -127,7 +132,8 @@ if __name__ == '__main__':
     print err
     sys.exit()
   try:
-    db.create_database(args.database)
+    if not args.no_create_database:
+      db.create_database(args.database)
   except:
     print "Error creating database"
   db.switch_database(args.database)
