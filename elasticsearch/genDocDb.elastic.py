@@ -60,6 +60,12 @@ def get_args_parser():
     type=int,
     help="How much point dummies will be generated")
   parser.add_argument(
+    "-v", "--verbose",
+    default=False,
+    action='store_true',
+    help="Print generated data"
+  )
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
@@ -82,12 +88,20 @@ def genData():
   phone = int(random.random()*100000001)
   value = random.randrange(0,1000)
   tags = []
+  value_list = []
+  value_obj = {}
   t = time.time()
   for j in range(random.randrange(1,10)):
     tags.append(ltags[int(random.random()*len(ltags))])
     if time.time() - t > 1:
       t=time.time()
       print i
+  for j in range(random.randrange(1,5)):
+    value_list.append(round(random.random()*100,3))
+  for j in range(random.randrange(1,5)):
+    t_tag = ltags[int(random.random()*len(ltags))]
+    t_val = round(random.random()*100,3)
+    value_obj[t_tag] = t_val
   DataOut = {
     "name": name,
     "names":{
@@ -98,6 +112,8 @@ def genData():
     "zipcode": zipcode,
     "phone": phone,
     "value": value,
+    "value_list": value_list,
+    "value_obj": value_obj,
     "tags": tags,
     "input_time": datetime.datetime.now(),
     "random_time": datetime.datetime.fromtimestamp(random.randrange(limit_t_first,limit_t_last))
@@ -141,10 +157,12 @@ if __name__ == '__main__':
       except Exception, err:
         print err
         print "last number input i-"+str(i)+" data: "+str(data)
+      if args.verbose:
+        print data
       if args.report:
         if time.time() - t > args.report:
           t = time.time()
           print "rtDummy "+str(i)+" : "+str(res)
-  print "Finish generate rethinkdb dummy : "+str(args.number)
+  print "Finish generate elasticsearch dummy : "+str(args.number)
   sys.exit()
 
