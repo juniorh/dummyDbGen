@@ -132,7 +132,7 @@ if __name__ == '__main__':
   t = time.time()
   for i in range(0,int(args.number)):
     query = genData()
-    print query
+    #print query
     db.execute(query)
     conn.commit()
     if args.report:
