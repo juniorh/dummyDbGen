@@ -63,6 +63,11 @@ def get_args_parser():
     type=str,
     help="Store key to file")
   parser.add_argument(
+    "-v", "--verbose",
+    default=False,
+    action='store_true',
+    help="Verbose query")
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
@@ -108,10 +113,13 @@ if __name__ == '__main__':
     if not line:
       break
     keys = line.split(';')
-    query = "select * from t1 where name = '"+keys[0]+"';"
+    query = "select * from "+args.table+" where name = '"+keys[0]+"';"
     # print query
     db.execute(query)
     res = db.fetchall()
+    if args.verbose:
+      print query
+      print res
     if len(res):
       r_ok = r_ok+1
       if len(res) > 1:
