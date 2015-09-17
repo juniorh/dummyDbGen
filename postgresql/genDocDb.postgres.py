@@ -63,6 +63,12 @@ def get_args_parser():
     type=int,
     help="How much point dummies will be generated")
   parser.add_argument(
+    "-o", "--output",
+    default=None,
+    nargs='?',
+    type=str,
+    help="Store key to file")
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
@@ -84,13 +90,18 @@ def genData():
   zipcode = int(random.random()*100001)
   phone = int(random.random()*100000001)
   insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"')";
-  return insquery
+  #return insquery
+  return {
+    "query": insquery,
+    "keys": [name,bool,added_at,zipcode,phone]
+  }
 
 if __name__ == '__main__':
   parser = get_args_parser()
   args = parser.parse_args()
   conn = None
   db = None
+  f = None
   if args.help or not args.database or not args.table or not args.username or not args.password :
     parser.print_help()
     parser.exit()
@@ -128,13 +139,23 @@ if __name__ == '__main__':
   except Exception, err:
     conn.commit()
     print err
+  if args.output:
+    try:
+      f = open(args.output,"a")
+    except Exception, err:
+      print err
+      sys.exit()
+  # Generate dummy data
   print "Total data will be generated = "+str(args.number)
   t = time.time()
   for i in range(0,int(args.number)):
     query = genData()
     #print query
-    db.execute(query)
+    db.execute(query["query"])
     conn.commit()
+    if f:
+      f.write(';'.join(map(str,query["keys"]))+"\n")
+      f.flush()
     if args.report:
       if time.time() - t > args.report:
         t = time.time()
