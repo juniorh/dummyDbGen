@@ -109,7 +109,7 @@ if __name__ == '__main__':
       break
     keys = line.split(';')
     query = "select * from t1 where name = '"+keys[0]+"';"
-    print query
+    # print query
     db.execute(query)
     res = db.fetchall()
     if len(res):
