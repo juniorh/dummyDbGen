@@ -77,7 +77,7 @@ def reqData(n):
   res = conn.getresponse()
   rescode = res.status
   if rescode != 200:
-    print "Error "+str(rescode)+" insert to path "+path
+    print "Error "+str(rescode)+" get from path "+path
     #pass
   res.close()
   conn.close()
