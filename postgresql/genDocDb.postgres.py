@@ -6,6 +6,7 @@
 
 import argparse
 import psycopg2
+import string
 import random
 import math
 import time
@@ -38,6 +39,12 @@ def get_args_parser():
     nargs='?',
     type=str,
     help="Password for login to server.")
+  parser.add_argument(
+    "-s", "--size",
+    default=None,
+    nargs='?',
+    type=int,
+    help="Payload size in randtext column.")
   parser.add_argument(
     "-d", "--database",
     default=None,
@@ -80,7 +87,11 @@ people = ["Liam", "Hunter", "Connor", "Jack", "Cohen", "Jaxon", "John", "Landon"
 scheme = "public"
 defaultdb = "postgres"
 
+def genRandString(y):
+  return ''.join(random.choice(string.ascii_letters) for x in range(y))
+
 def genData():
+  insquery = None
   nameLen = int(random.random()*(5-1))+1
   name = people[int(random.random()*len(people))]
   for j in range(0,nameLen):
@@ -89,7 +100,15 @@ def genData():
   added_at = "CURRENT_TIMESTAMP"
   zipcode = int(random.random()*100001)
   phone = int(random.random()*100000001)
-  insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"')";
+  if args.size:
+    if args.size > 0 and args.size <= 10000: # max 10KB
+      randomtext = genRandString(int(args.size))
+      insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone,randtext) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"','"+randomtext+"')";
+    else:
+      print "size arg should be 0<size<=10000, exit script"
+      sys.exit()
+  else:
+    insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"')";
   #return insquery
   return {
     "query": insquery,
@@ -113,7 +132,7 @@ if __name__ == '__main__':
     print err
     sys.exit()
   createdb = "CREATE DATABASE "+args.database
-  createtbl = "CREATE TABLE "+args.database+"."+scheme+"."+args.table+" (user_id SERIAL, name text, boolean boolean, added_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), zipcode numeric(12), phone numeric(12));"
+  createtbl = "CREATE TABLE "+args.database+"."+scheme+"."+args.table+" (user_id SERIAL, name text, boolean boolean, added_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), zipcode numeric(12), phone numeric(12), randtext text);"
   #print createdb
   #print createtbl
   try:
@@ -161,3 +180,4 @@ if __name__ == '__main__':
         t = time.time()
         print "n data: "+str(i)
   conn.close()
+  sys.exit()
