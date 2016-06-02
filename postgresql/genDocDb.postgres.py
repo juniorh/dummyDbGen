@@ -76,6 +76,12 @@ def get_args_parser():
     type=str,
     help="Store key to file")
   parser.add_argument(
+    "-U","--update",
+    default=False,
+    action='store_true',
+    help="Update existing tables start from id 1 to n"
+  )
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
@@ -90,7 +96,7 @@ defaultdb = "postgres"
 def genRandString(y):
   return ''.join(random.choice(string.ascii_letters) for x in range(y))
 
-def genData():
+def genData(n):
   insquery = None
   nameLen = int(random.random()*(5-1))+1
   name = people[int(random.random()*len(people))]
@@ -103,12 +109,18 @@ def genData():
   if args.size:
     if args.size > 0 and args.size <= 10000: # max 10KB
       randomtext = genRandString(int(args.size))
-      insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone,randtext) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"','"+randomtext+"')";
+      if args.update:
+        insquery = "UPDATE "+args.database+"."+scheme+"."+args.table+" SET (name,boolean,added_at,zipcode,phone,randtext) = ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"','"+randomtext+"') WHERE user_id = '"+str(i+1)+"'";
+      else:
+        insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone,randtext) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"','"+randomtext+"')";
     else:
       print "size arg should be 0<size<=10000, exit script"
       sys.exit()
   else:
-    insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"')";
+    if args.update:
+        insquery = "UPDATE "+args.database+"."+scheme+"."+args.table+" SET (name,boolean,added_at,zipcode,phone) = ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"') WHERE user_id = '"+str(i+1)+"'";     
+    else:
+      insquery = "INSERT INTO "+args.database+"."+scheme+"."+args.table+" (name,boolean,added_at,zipcode,phone) VALUES ('"+name+"','"+str(bool)+"','now','"+str(zipcode)+"','"+str(phone)+"')";
   #return insquery
   return {
     "query": insquery,
@@ -168,7 +180,7 @@ if __name__ == '__main__':
   print "Total data will be generated = "+str(args.number)
   t = time.time()
   for i in range(0,int(args.number)):
-    query = genData()
+    query = genData(i)
     #print query
     db.execute(query["query"])
     conn.commit()
