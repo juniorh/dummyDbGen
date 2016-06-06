@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # How to use
-# >python genDocDb.influx.py -h localhost -P 8086 -u root -p password -d database -s series -n 1000 -t 1
+# >python genDocDb.influx.py -h localhost -P 8086 -u root -p password -d database -m measurement -n 1000 -t 1 -r default
 import datetime
 import logging
 import argparse
