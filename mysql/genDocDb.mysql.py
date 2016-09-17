@@ -49,6 +49,12 @@ def get_args_parser():
     type=str,
     help="Select table")
   parser.add_argument(
+    "-e", "--engine",
+    default="InnoDB",
+    nargs='?',
+    type=str,
+    help="Table engine, default is InnoDB. Ignore if table is existed")
+  parser.add_argument(
     "-r", "--report",
     default=0,
     nargs='?',
@@ -98,7 +104,7 @@ if __name__ == '__main__':
     print err
     sys.exit()
   createdb = "CREATE DATABASE IF NOT EXISTS "+args.database
-  createtbl = "CREATE TABLE IF NOT EXISTS "+args.database+"."+args.table+" (`user_id` int(12) NOT NULL AUTO_INCREMENT, `name` varchar(128) NOT NULL, `boolean` tinyint(1) NOT NULL, `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `zipcode` int(8) NOT NULL, `phone` int(12) NOT NULL, UNIQUE KEY `user_id` (`user_id`)) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 "
+  createtbl = "CREATE TABLE IF NOT EXISTS "+args.database+"."+args.table+" (`user_id` int(12) NOT NULL AUTO_INCREMENT, `name` varchar(128) NOT NULL, `boolean` tinyint(1) NOT NULL, `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `zipcode` int(8) NOT NULL, `phone` int(12) NOT NULL, UNIQUE KEY `user_id` (`user_id`)) ENGINE="+args.engine+"  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 "
   db.query(createdb)
   db.query(createtbl)  
   print "Total data will be generated = "+str(args.number)
