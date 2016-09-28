@@ -4,6 +4,7 @@
 
 from elasticsearch import Elasticsearch 
 import argparse
+import string
 import random
 import datetime
 import time
@@ -60,6 +61,12 @@ def get_args_parser():
     type=int,
     help="How much point dummies will be generated")
   parser.add_argument(
+    "-s", "--size",
+    default=None,
+    nargs='?',
+    type=int,
+    help="Payload size in randtext column, max 10000")
+  parser.add_argument(
     "-v", "--verbose",
     default=False,
     action='store_true',
@@ -72,6 +79,9 @@ def get_args_parser():
     help="Show this help"
   )
   return parser
+
+def genRandString(y):
+  return ''.join(random.choice(string.ascii_letters) for x in range(y))
 
 def genData():
   people = ["Liam", "Hunter", "Connor", "Jack", "Cohen", "Jaxon", "John", "Landon", "Owen", "William", "Benjamin", "Caleb", "Henry", "Lucas", "Mason", "Noah", "Alex", "Alexander", "Carter", "Charlie", "David", "Jackson", "James", "Jase", "Joseph", "Wyatt", "Austin", "Camden", "Cameron", "Emmett", "Griffin", "Harrison", "Hudson", "Jace", "Jonah", "Kingston", "Lincoln", "Marcus", "Nash", "Nathan", "Oliver", "Parker", "Ryan", "Ryder", "Seth", "Xavier", "Charles", "Clark", "Cooper", "Daniel", "Drake", "Dylan", "Edward", "Eli", "Elijah", "Emerson", "Evan", "Felix", "Gabriel", "Gavin", "Gus", "Isaac", "Isaiah", "Jacob", "Jax", "Kai", "Kaiden", "Malcolm", "Michael", "Nathaniel", "Riley", "Sawyer", "Thomas", "Tristan", "Antonio", "Beau", "Beckett", "Brayden", "Bryce", "Caden", "Casey", "Cash", "Chase", "Clarke", "Dawson", "Declan", "Dominic", "Drew", "Elliot", "Elliott", "Ethan", "Ezra", "Gage", "Grayson", "Hayden", "Jaxson", "Jayden","Kole", "Levi", "Logan", "Luke", "Matthew", "Morgan", "Nate", "Nolan", "Peter", "Ryker", "Sebastian", "Simon", "Tanner", "Taylor", "Theo", "Turner", "Ty", "Tye"]
@@ -102,6 +112,13 @@ def genData():
     t_tag = ltags[int(random.random()*len(ltags))]
     t_val = round(random.random()*100,3)
     value_obj[t_tag] = t_val
+  randomtext = None
+  if args.size:
+    if args.size > 0 and args.size <= 10000: # max 10KB
+      randomtext = genRandString(int(args.size))
+    else:
+      print "size arg should be 0<size<=10000, exit script"
+      sys.exit()
   DataOut = {
     "name": name,
     "names":{
@@ -118,6 +135,8 @@ def genData():
     "input_time": datetime.datetime.now(),
     "random_time": datetime.datetime.fromtimestamp(random.randrange(limit_t_first,limit_t_last))
   }
+  if randomtext:
+    DataOut['randtext'] = randomtext
   return DataOut
 
 if __name__ == '__main__':
