@@ -5,6 +5,7 @@
 import argparse
 import memcache
 import datetime
+import string
 import random
 import uuid
 import time
@@ -43,12 +44,21 @@ def get_args_parser():
     type=str,
     help="Store key to file")
   parser.add_argument(
+    "-s", "--size",
+    default=None,
+    nargs='?',
+    type=int,
+    help="Payload size in randtext column, max 10000")
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
     help="Show this help"
   )
   return parser
+
+def genRandString(y):
+  return ''.join(random.choice(string.ascii_letters) for x in range(y))
 
 def genData():
   people = ["Liam", "Hunter", "Connor", "Jack", "Cohen", "Jaxon", "John", "Landon", "Owen", "William", "Benjamin", "Caleb", "Henry", "Lucas", "Mason", "Noah", "Alex", "Alexander", "Carter", "Charlie", "David", "Jackson", "James", "Jase", "Joseph", "Wyatt", "Austin", "Camden", "Cameron", "Emmett", "Griffin", "Harrison", "Hudson", "Jace", "Jonah", "Kingston", "Lincoln", "Marcus", "Nash", "Nathan", "Oliver", "Parker", "Ryan", "Ryder", "Seth", "Xavier", "Charles", "Clark", "Cooper", "Daniel", "Drake", "Dylan", "Edward", "Eli", "Elijah", "Emerson", "Evan", "Felix", "Gabriel", "Gavin", "Gus", "Isaac", "Isaiah", "Jacob", "Jax", "Kai", "Kaiden", "Malcolm", "Michael", "Nathaniel", "Riley", "Sawyer", "Thomas", "Tristan", "Antonio", "Beau", "Beckett", "Brayden", "Bryce", "Caden", "Casey", "Cash", "Chase", "Clarke", "Dawson", "Declan", "Dominic", "Drew", "Elliot", "Elliott", "Ethan", "Ezra", "Gage", "Grayson", "Hayden", "Jaxson", "Jayden","Kole", "Levi", "Logan", "Luke", "Matthew", "Morgan", "Nate", "Nolan", "Peter", "Ryker", "Sebastian", "Simon", "Tanner", "Taylor", "Theo", "Turner", "Ty", "Tye"]
@@ -71,6 +81,13 @@ def genData():
     if time.time() - t > 1:
       t=time.time()
       print i
+  randomtext = None
+  if args.size:
+    if args.size > 0 and args.size <= 10000: # max 10KB
+      randomtext = genRandString(int(args.size))
+    else:
+      print "size arg should be 0<size<=10000, exit script"
+      sys.exit()
   DataOut = {
     "name": name,
     "names":{
@@ -85,6 +102,8 @@ def genData():
     "input_time": datetime.datetime.now(),
     "random_time": datetime.datetime.fromtimestamp(random.randrange(limit_t_first,limit_t_last))
   }
+  if randomtext:
+    DataOut['randtext'] = randomtext
   return DataOut
 
 if __name__ == '__main__':
