@@ -96,7 +96,7 @@ def runThread(num):
 if __name__ == '__main__':
   parser = get_args_parser()
   args = parser.parse_args()
-  if args.help or not args.number or args.number > i:
+  if args.help or not args.number or not args.file or args.number > i:
     parser.print_help()
     parser.exit()
     sys.exit()
