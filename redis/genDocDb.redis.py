@@ -32,6 +32,12 @@ def get_args_parser():
     type=int,
     help="Print report every r second") 
   parser.add_argument(
+    "-d", "--db",
+    default=0,
+    nargs='?',
+    type=int,
+    help="Redis db number")
+  parser.add_argument(
     "-k", "--key",
     default="dummy",
     nargs='?',
@@ -127,7 +133,7 @@ if __name__ == '__main__':
     parser.print_help()
     parser.exit()
   try:
-    r = redis.StrictRedis(host=str(args.host), port=str(args.port), db=0)
+    r = redis.StrictRedis(host=str(args.host), port=str(args.port), db=args.db)
   except Exception, err:
     print err
     sys.exit()
