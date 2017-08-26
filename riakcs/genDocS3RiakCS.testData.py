@@ -92,20 +92,21 @@ def cekFileS3(n):
   path = path+'/'+level1+'/'+level2+'/'+level3+'/'+level4
   AWSAccessKeyId = args.key
   AWSSecretAccessKey = args.secret
-  Expires = str(time.strftime("%b, %d %b %Y %H:%M:%S +0000", time.gmtime()))
+  Expires = str(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()))
   HTTPVerb = "GET"
   ContentMD5 = ""
   ContentType = ""
+  DateNull = ""
   CanonicalizedAmzHeaders = ""
   CanonicalizedResource = path
-  string_to_sign = HTTPVerb + "\n" +  ContentMD5 + "\n" +  ContentType + "\n" + str(Expires) + "\n" + CanonicalizedAmzHeaders + CanonicalizedResource
+  string_to_sign = HTTPVerb + "\n" +  ContentMD5 + "\n" + DateNull + "\n" + ContentType + "\nx-amz-date:" + str(Expires) + "\n" + CanonicalizedAmzHeaders + CanonicalizedResource
   sig = base64.b64encode(hmac.new(AWSSecretAccessKey, string_to_sign, sha).digest())
   auth = 'AWS '+AWSAccessKeyId+':'+sig
   h = {
     'User-Agent': 'curl/7.26.0',
     'Host': 's3.amazonaws.com:8080',
     'Accept': '*/*',
-    'Date': str(time.strftime("%b, %d %b %Y %H:%M:%S +0000", time.gmtime())),
+    'Date': Expires,
     'Authorization': 'AWS '+AWSAccessKeyId+':'+sig,
     'Accept-Encoding': None
   }
@@ -114,7 +115,7 @@ def cekFileS3(n):
   conn.putheader("User-Agent", h['User-Agent'])
   conn.putheader("Host", h['Host'])
   conn.putheader("Accept", h['Accept'])
-  conn.putheader("Date", h['Date'])
+  conn.putheader("x-amz-date", h['Date'])
   conn.putheader("Authorization", h['Authorization'])
   conn.endheaders()
   res = conn.getresponse()
