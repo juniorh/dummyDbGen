@@ -42,7 +42,7 @@ def get_args_parser():
     default="dummy",
     nargs='?',
     type=str,
-    help="Print report every r second")
+    help="key name")
   parser.add_argument(
     "-n", "--number",
     default=1,
