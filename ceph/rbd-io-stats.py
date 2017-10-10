@@ -66,7 +66,7 @@ for line in  f.stdout:
     (osd,op,pg,object,offset_h,length_h,length) = s.groups()
     length_d = int('0x'+length_h,0)
     try:
-      (w_pool,w_pg) = re.search(r'(\S+).(\S+)\_',pg).groups()
+      (w_pool,w_pg) = re.search(r'(\S+)\.(\S+)\_',pg).groups()
       (w_rbd,) = re.search(r'rbd_(\S+)\.',object).groups()
     except:
       pass
