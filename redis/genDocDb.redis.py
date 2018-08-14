@@ -10,6 +10,7 @@ import redis
 import uuid
 import time
 import sys
+from rediscluster import StrictRedisCluster
 
 def get_args_parser():
   parser = argparse.ArgumentParser(add_help=False)
@@ -61,6 +62,12 @@ def get_args_parser():
     nargs='?',
     type=int,
     help="Payload size in randtext column, max 10000")
+  parser.add_argument(
+    "-c", "--cluster",
+    default=False,
+    nargs='?',
+    type=bool,
+    help="Cluster mode connection")
   parser.add_argument(
     "--help",
     default=False,
@@ -133,7 +140,11 @@ if __name__ == '__main__':
     parser.print_help()
     parser.exit()
   try:
-    r = redis.StrictRedis(host=str(args.host), port=str(args.port), db=args.db)
+    if args.cluster:
+      nodes = [{"host": args.host, "port": str(args.port)}]
+      r = StrictRedisCluster(startup_nodes=nodes, decode_responses=True)
+    else:
+      r = redis.StrictRedis(host=str(args.host), port=str(args.port), db=args.db)
   except Exception, err:
     print err
     sys.exit()
