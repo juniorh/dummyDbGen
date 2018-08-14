@@ -168,7 +168,7 @@ if __name__ == '__main__':
   for i in range(0,backMilliseconds,timeInterval):
     dummyData = genData(templateData)
     dummyData["time"] = startTime+i
-    db.write_points([dummyData], time_precision='u')
+    db.write_points([dummyData], time_precision='u', retention_policy=args.retention)
     if args.debug:
       print dummyData
     if args.verbose:
