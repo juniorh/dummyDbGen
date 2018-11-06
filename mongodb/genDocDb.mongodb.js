@@ -27,7 +27,6 @@ function genDocDb(collname, num, payload_size=0) {
     }
     doc = {"name":name, "user_id":user_id, "boolean": boolean, "added_at":added_at, "phone":phone, "zipcode": zipcode, "payload": payload };
     db[collname].insert(doc);
-    print(i)
     if((new Date())-curDate > 1000){
       print(i);
       curDate = new Date();
