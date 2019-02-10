@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pip install redis-py-cluster
 # How to use
 # >python genDocDb.redis.py -h localhost -p 6379
 
