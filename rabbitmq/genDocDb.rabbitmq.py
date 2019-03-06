@@ -94,6 +94,9 @@ def genRandString(y):
 def genData():
   return genRandString(int(args.size))
 
+def callback(ch, method, properties, body):
+    print(" [x] Received %r" % body)
+
 if __name__ == '__main__':
   parser = get_args_parser()
   args = parser.parse_args()
@@ -130,4 +133,6 @@ if __name__ == '__main__':
           print "rtDummy "+str(i+1)
   if args.receive:
     print "Start listen and receive from vhost: " + args.vhost + "port: " + str(args.port)
-
+    ch.basic_consume(callback, queue=args.queue, no_ack=True)
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    ch.start_consuming()
