@@ -82,6 +82,11 @@ def get_args_parser():
     type=int,
     help="How many messages will be generated")
   parser.add_argument(
+    "--durable",
+    default=False,
+    action='store_true',
+    help="Message durability")
+  parser.add_argument(
     "--help",
     default=False,
     action='store_true',
@@ -115,7 +120,7 @@ if __name__ == '__main__':
     auth = pika.PlainCredentials(args.user, args.password)
     conn = pika.BlockingConnection(pika.ConnectionParameters(host=args.host, port=args.port, credentials=auth, virtual_host=args.vhost))
     ch = conn.channel()
-    ch.queue_declare(queue=args.queue)
+    ch.queue_declare(queue=args.queue, durable=args.durable)
   except Exception, err:
     print err
     sys.exit()
@@ -131,6 +136,7 @@ if __name__ == '__main__':
         if time.time() - t > args.report:
           t = time.time()
           print "rtDummy "+str(i+1)
+    print "Finish send message " + str(i+1)
   if args.receive:
     print "Start listen and receive from vhost: " + args.vhost + "port: " + str(args.port)
     ch.basic_consume(callback, queue=args.queue, no_ack=True)
