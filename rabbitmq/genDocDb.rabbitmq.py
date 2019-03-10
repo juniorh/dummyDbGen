@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # How to use
+# > pip install pika
 ## send to VHOST=vh1 QUEUE=q1 QTY=10messages MESSAGE_SIZE=100chars DURABLE=true
 # > python genDocDb.rabbitmq.py -u user1 -P user1 --vhost vh1 -q q1 -n 10 -S -s 100 --durable
 ## listen & receive message on VHOST=vh1 QUEUE=q1
