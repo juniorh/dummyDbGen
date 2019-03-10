@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # How to use
-# > python genDocDb.rabbitmq.py -u user1 -P user1 --vhost vh1 -q q1 -n 10 -S -s 1
+## send to VHOST=vh1 QUEUE=q1 QTY=10messages MESSAGE_SIZE=100chars DURABLE=true
+# > python genDocDb.rabbitmq.py -u user1 -P user1 --vhost vh1 -q q1 -n 10 -S -s 100 --durable
+## listen & receive message on VHOST=vh1 QUEUE=q1
+# > python genDocDb.rabbitmq.py -u user1 -P user1 --vhost vh1 -q q1 -R
 
 import sys
 import pika  
